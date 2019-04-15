@@ -4,8 +4,66 @@ import * as url from "url";
 import { ScryfallListResponse } from "./ScryfallResponses";
 import { ScryfallSet } from "./ScryfallSet";
 import { ScryfallCard } from "./ScryfallCard";
+import { ScryfallCatalog } from "./ScryfallCatalog";
 import { ScryfallError } from "./ScryfallError";
 import { ScryfallRuling } from "./ScryfallRuling";
+
+
+/**
+ * The list of all known catalogs currated by Scryfall itself. Currently there
+ * is no endpoint (e.g. api.scryfall.com/catalogs), which returns what catalogs
+ * exists.
+
+ * Each entry in this list is the trailing slug of https://api.scryfall.com/catalog/
+ */
+const knownCatalogs = [
+  'card-names',
+  'artist-names',
+  'word-bank',
+  'creature-types',
+  'planeswalker-types',
+  'land-types',
+  'artifact-types',
+  'enchantment-types',
+  'spell-types',
+  'powers',
+  'toughnesses',
+  'loyalties',
+  'watermarks',
+]
+/**
+ * Attempts to fetch the catalog of the given name, returning the list of its entries
+ * @param name The name of the catalog to fetch
+ * @returns A promise, if no callback is specified. Otherwise nothing.
+ */
+export function getCatalog(
+  name: string,
+  cb: (res: ScryfallCatalog) => void,
+): Promise<ScryfallCatalog> {
+  const ret = (res, rej) => {
+    const isValid = !(knownCatalogs.indexOf(name.toLowerCase().replaced(' ', '-')) < 0)
+    const err = new Error(`${name} is not a known catalog`);
+    if (!isValid) rej(err)
+
+    APIRequest(`/catalog/${name}`, (catalog: ScryfallError | ScryfallCatalog) => {
+        if (catalog.object === "error") {
+            rej ? rej(catalog) : res(catalog);
+        } else {
+            rej ? res(catalog) : res(null, catalog);
+        }
+    });
+  }
+  if (cb) {
+      ret(cb, null);
+  } else {
+      return new Promise<ScryfallCatalog>((resolve, reject) => ret(resolve, reject));
+  }
+}
+
+
+
+
+
 
 /**
  * Attempts to autocomplete the specified token, returning a list of possible matches.
