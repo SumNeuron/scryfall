@@ -124,15 +124,15 @@ describe("Scryfall", () => {
             });
         }).timeout(0);
     });
-    
+
     describe("#getCardByScryfall(string) => Promise", () => {
         it("Returns information about a particular card by it's scryfall id.", async () => {
             try {
             const card = await scryfall.getCard("44012bb8-17b7-4b50-a796-662ef09bfc29");
             assert.equal(card.name, "Bamboozle", "The returned card is incorrect.");
-            } catch (err) { 
+            } catch (err) {
                 assert.fail(null, err, err.message);
-            }                    
+            }
         }).timeout(0);
     });
 
@@ -159,9 +159,20 @@ describe("Scryfall", () => {
             try {
                 const rulings = await scryfall.getRulings("f2b9983e-20d4-4d12-9e2c-ec6d9a345787");
                 assert.notEqual(rulings, null);
-            } catch (err) { 
+            } catch (err) {
                 assert.fail(null, err, err.message);
-            }     
+            }
         });
     })
+
+    describe("#getCatalog => Promise", () => {
+        it("Returns a catalog with the given name.", async () => {
+            try {
+                const catalog = await scryfall.getCatalog("card-names", true);
+                assert.ok(catalog, "The returned catalog is incorrect.");
+            } catch (err) {
+                assert.fail(null, err, err.message);
+            }
+        }).timeout(0);
+    });
 });
